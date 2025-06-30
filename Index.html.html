@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web Full‑Body Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas, video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+    }
+    #webcamButton {
+      position: absolute;
+      top: 1em;
+      left: 1em;
+      padding: 0.8em 1.2em;
+      font-size: 1rem;
+      z-index: 2;
+      background-color: #ffffffcc;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="webcamButton">Enable Webcam</button>
+  <video id="webcam" autoplay playsinline></video>
+  <canvas id="output_canvas"></canvas>
+
+  <script>
+    const { FilesetResolver, PoseLandmarker } = window.mediapipe.tasks.vision;
+    let landmarker, webcamRunning = false;
+
+    async function init() {
+      const vision = await FilesetResolver.forVisionTasks();
+      landmarker = await PoseLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+        },
+        runningMode: "VIDEO",
+        numPoses: 1
+      });
+      document.getElementById("webcamButton").disabled = false;
+    }
+
+    async function cameraLoop(video) {
+      const canvas = document.getElementById("output_canvas");
+      const ctx = canvas.getContext("2d");
+
+      function render() {
+        if (!webcamRunning) return;
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.save();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const now = performance.now();
+        const results = landmarker.detectForVideo(video, now);
+
+        if (results.landmarks && results.landmarks.length > 0) {
+          for (const landmark of results.landmarks[0]) {
+            ctx.beginPath();
+            ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = "lime";
+            ctx.fill();
+          }
+        }
+
+        ctx.restore();
+        requestAnimationFrame(render);
+      }
+
+      render();
+    }
+
+    document.getElementById("webcamButton").addEventListener("click", async () => {
+      const video = document.getElementById("webcam");
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+
+      await video.play();
+      webcamRunning = true;
+      cameraLoop(video);
+    });
+
+    init();
+  </script>
+</body>
+</html>
