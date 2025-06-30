@@ -44,7 +44,7 @@
     const { FilesetResolver, PoseLandmarker, DrawingUtils } = window.mediapipe.tasks.vision;
     let landmarker, webcamRunning = false;
 
-    const vision = await FilesetResolver.forVisionTasks(
+    const vision = await FilesetResolver.forVisionTasks();
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
 );
 
