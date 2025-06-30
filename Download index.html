@@ -45,7 +45,7 @@
     let landmarker, webcamRunning = false;
 
     const vision = await FilesetResolver.forVisionTasks(
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.wasm"
+  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
 );
 
       landmarker = await PoseLandmarker.createFromOptions(vision, {
