@@ -76,11 +76,13 @@
         const results = landmarker.detectForVideo(video, now);
 
         if (results.landmarks && results.landmarks.length > 0) {
-          const drawingUtils = new DrawingUtils(ctx);
-          drawingUtils.drawLandmarks(results.landmarks[0], {
-            color: "#00FF00", lineWidth: 2
-          });
-        }
+  for (const landmark of results.landmarks[0]) {
+    ctx.beginPath();
+    ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 5, 0, 2 * Math.PI);
+    ctx.fillStyle = "lime";
+    ctx.fill();
+  }
+}
 
         ctx.restore();
         requestAnimationFrame(render);
