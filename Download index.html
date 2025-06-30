@@ -44,10 +44,9 @@
     const { FilesetResolver, PoseLandmarker, DrawingUtils } = window.mediapipe.tasks.vision;
     let landmarker, webcamRunning = false;
 
-    async function init() {
-      const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm"
-      );
+    const vision = await FilesetResolver.forVisionTasks(
+  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.wasm"
+);
 
       landmarker = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: {
